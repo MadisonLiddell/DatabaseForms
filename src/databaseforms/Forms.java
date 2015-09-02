@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.text.JTextComponent;
 
 /**
  * Handles all data from the database entry form, creating appropriate classes, 
@@ -130,24 +129,30 @@ public class Forms extends javax.swing.JFrame {
         return true;
     }
     
-    //save the form depending on which entity it is for
-    private void saveForm(Entity entity) throws ParseException
+    // save Property form and return class reference
+    private Property createProperty()
     {
-        switch (entity)
-        {
-            case Agent:
-                Agent agent = getAgentFields();
-                break;
-            case Property:
-                Property property = getPropertyFields();
-                break;
-        }     
+        Property p = getPropertyFields();
+        return p;
+    }
+    // save Agent form and return class reference
+    private Agent createAgent()
+    {
+        Agent a;
+        try {
+            a = getAgentFields();
+            return a;
+        } catch (ParseException ex) {
+            Logger.getLogger(Forms.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
     //extract data from text fields and create class from them
-    private Agent getAgentFields() throws ParseException
+    public Agent getAgentFields() throws ParseException
     {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date join = dateFormat.parse(jFormattedTextField1.getText());
+        Date d = dateFormat.parse(jFormattedTextField1.getText());
+        String join = dateFormat.format(d);
         Agent agent = new Agent(jTextField3.getText(),          //fname
                 jTextField4.getText(),                          //lname
                 Integer.parseInt(jTextField1.getText()),        //id
@@ -160,7 +165,7 @@ public class Forms extends javax.swing.JFrame {
                 Integer.parseInt(jTextField2.getText()));       //office code
         return agent;
     }
-    private Property getPropertyFields()
+    public Property getPropertyFields()
     {
         Property prop = new Property(Integer.parseInt(jTextField13.getText()),//code
         jTextField15.getText(),                                 //type of prop
@@ -806,12 +811,11 @@ public class Forms extends javax.swing.JFrame {
     }//GEN-LAST:event_jFormattedTextField1FocusLost
     //agent submit button
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        //get all the components and check each one for length or filled
-        try {
-            if (checkAllFields(Entity.Agent))
-                saveForm(Entity.Agent);//only try to save the form if all the fields are good
-        } catch (ParseException ex) {
-            Logger.getLogger(Forms.class.getName()).log(Level.SEVERE, null, ex);
+        Agent a;
+        if (checkAllFields(Entity.Agent))//only try to create an agent if all the fields are good
+        {
+            a = createAgent();
+            a.insert(a);                 //insert into db
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -848,11 +852,11 @@ public class Forms extends javax.swing.JFrame {
     }//GEN-LAST:event_jComboBox1ActionPerformed
     //property submit button
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        try {
-            if (checkAllFields(Entity.Property))
-                saveForm(Entity.Property);  //only try to save the form if all the fields are good
-        } catch (ParseException ex) {
-            Logger.getLogger(Forms.class.getName()).log(Level.SEVERE, null, ex);
+        Property p;
+        if (checkAllFields(Entity.Property))//only try to save the form if all the fields are good
+        {
+            p = createProperty();
+            p.insert(p);                 //insert into db
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 

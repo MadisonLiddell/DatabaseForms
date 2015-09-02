@@ -1,6 +1,9 @@
 package databaseforms;
 
-import java.util.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class containing all fields from MySQL Agent table
@@ -8,11 +11,10 @@ import java.util.Date;
  */
 public class Agent {
     String agent_fname, agent_lname,
-            agent_address, agent_city, agent_state;
+            agent_address, agent_date_join, agent_city, agent_state;
     int agent_id, agent_zipcode,
             fk_off_code;
     double agent_phone;
-    java.util.Date agent_date_join;
     public enum agent_state2 //WIP for fun
     {
         ALABAMA("Alabama"), ALASKA("Alaska"), ARIZONA("Arizona"), ARKANSAS("Arkansas"), 
@@ -39,7 +41,7 @@ public class Agent {
         public String getName() {return this.name;}
     }
     
-    Agent(String fname, String lname, int id, double phone, String addr, Date join,
+    Agent(String fname, String lname, int id, double phone, String addr, String join,
             String city, String state,int zip, int offcode )
     {//follows same order as mysql setup
         agent_fname = fname;
@@ -52,5 +54,31 @@ public class Agent {
         agent_state = state;
         agent_zipcode = zip;
         fk_off_code = offcode;
+    }
+    // Insert data into agent mysql table
+    void insert(Agent a)
+    {
+        try{                 
+            JDBCConnect jdbc = new JDBCConnect();   
+            // connect to db and create query
+            PreparedStatement statement = jdbc.conn.prepareStatement("INSERT INTO agent VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            statement.setString(1, a.agent_fname);      // fill in the agent fields
+            statement.setString(2, a.agent_lname);          
+            statement.setInt(3, a.agent_id);          
+            statement.setDouble(4, a.agent_phone);          
+            statement.setString(5, a.agent_address);          
+            statement.setString(6, a.agent_date_join);          
+            statement.setString(7, a.agent_city);          
+            statement.setString(8, a.agent_state);          
+            statement.setInt(9, a.agent_zipcode);          
+            statement.setInt(10, a.fk_off_code);          
+            
+            statement.executeUpdate();                  // execute the insert command
+            
+            jdbc.disconnect();                          // disconnect
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

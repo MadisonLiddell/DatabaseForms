@@ -1,5 +1,11 @@
 package databaseforms;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Class containing all fields from MySQL Property table
  * @author Madison Liddell
@@ -51,6 +57,32 @@ public class Property {
         prop_state = state;
         prop_zipcode = zip;
         fk_agent_id = agentid;
+    }
+    // Insert data into property mysql table
+    void insert(Property p)
+    {
+        try{                   
+            JDBCConnect jdbc = new JDBCConnect();   
+            // connect to db and create query
+            PreparedStatement statement = jdbc.conn.prepareStatement("INSERT INTO TABLE_NAME('property') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            statement.setInt(1, p.prop_code);           // fill in the property fields
+            statement.setString(2, p.prop_type);          
+            statement.setString(3, p.prop_address);          
+            statement.setString(4, p.prop_owner_fname);          
+            statement.setString(5, p.prop_owner_lname);          
+            statement.setFloat(6, p.prop_worth);          
+            statement.setString(7, p.prop_city);          
+            statement.setString(8, p.prop_state);          
+            statement.setInt(9, p.prop_zipcode);          
+            statement.setInt(10, p.fk_agent_id);          
+            
+            statement.executeUpdate();                  // execute the insert command
+            
+            jdbc.disconnect();                          // disconnect
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
    
     /*public enum test 
